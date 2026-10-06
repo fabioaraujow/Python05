@@ -44,6 +44,29 @@ class NumericProcessor(DataProcessor):
             for current in data:
                 self.storage.append(str(current))
 
+
+class TextProcessor(DataProcessor):
+    def validate(self, data: Any) -> bool:
+        if isinstance(data, list):
+            if not data:
+                return False
+            for current in data:
+                if not isinstance(current, str):
+                    return False
+            return True
+        else:
+            return isinstance(data, str)
+
+    def ingest(self, data: Any) -> None:
+        if not self.validate(data):
+            raise ValueError("Improper text data")
+        if isinstance(data, str):
+            self.storage.append(data)
+        else:
+            for current in data:
+                self.storage.append(current)
+
+
 if __name__ == "__main__":
     print("=== Code Nexus - Data Processor ===")
     print("Testing Numeric Processor...")
