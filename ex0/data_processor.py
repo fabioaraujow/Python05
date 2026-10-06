@@ -85,3 +85,15 @@ if __name__ == "__main__":
     for i in range(3):
         rank, data = np.output()
         print(f" Numeric value {rank}: {data}")
+    print()
+    print("Testing Text Processor...")
+    tp = TextProcessor()
+    print(f" Trying to validate input '42': {tp.validate(42)}")
+    txt = ['Hello', 'Nexus', 'World']
+    print(f" Processing data: {txt}")
+    if tp.validate(txt):
+        tp.ingest(txt)
+    print(" Extracting 1 value")
+    for i in range(1):
+        rank, data = tp.output()
+        print(f" Text value {rank}: {data}")
