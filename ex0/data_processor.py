@@ -67,6 +67,10 @@ class TextProcessor(DataProcessor):
                 self.storage.append(current)
 
 
+class LogProcessor(DataProcessor):
+    ...
+
+
 if __name__ == "__main__":
     print("=== Code Nexus - Data Processor ===")
     print("Testing Numeric Processor...")
