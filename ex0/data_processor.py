@@ -68,7 +68,24 @@ class TextProcessor(DataProcessor):
 
 
 class LogProcessor(DataProcessor):
-    ...
+    def validate(self, data: Any) -> bool:
+        if isinstance(data, list):
+            if not data:
+                return False
+            for current in data:
+                if (not isinstance(current, dict)
+                        or 'log_level' not in current
+                        or 'log_message' not in current
+                        or not isinstance(current['log_level'], str)
+                        or not isinstance(current['log_message'], str)):
+                    return False
+            return True
+        else:
+            return (isinstance(data, dict)
+                    and 'log_level' in data
+                    and 'log_message' in data
+                    and isinstance(data['log_level'], str)
+                    and isinstance(data['log_message'], str))
 
 
 if __name__ == "__main__":
