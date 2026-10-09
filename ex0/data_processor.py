@@ -87,6 +87,16 @@ class LogProcessor(DataProcessor):
                     and isinstance(data['log_level'], str)
                     and isinstance(data['log_message'], str))
 
+    def ingest(self, data: Any) -> None:
+        if not self.validate(data):
+            raise ValueError("Improper log data")
+        if isinstance(data, dict):
+            self.storage.append(f"{data['log_level']}: {data['log_message']}")
+        else:
+            for current in data:
+                self.storage.append(
+                        f"{current['log_level']}: {current['log_message']}")
+
 
 if __name__ == "__main__":
     print("=== Code Nexus - Data Processor ===")
@@ -106,7 +116,9 @@ if __name__ == "__main__":
     for i in range(3):
         rank, data = np.output()
         print(f" Numeric value {rank}: {data}")
+
     print()
+
     print("Testing Text Processor...")
     tp = TextProcessor()
     print(f" Trying to validate input '42': {tp.validate(42)}")
@@ -118,3 +130,18 @@ if __name__ == "__main__":
     for i in range(1):
         rank, data = tp.output()
         print(f" Text value {rank}: {data}")
+
+    print()
+
+    print("Testing Log Processor...")
+    lp = LogProcessor()
+    print(f" Trying to validate input 'Hello': {lp.validate('Hello')}")
+    log_list = [{'log_level': 'NOTICE', 'log_message': 'Connection to server'},
+                {'log_level': 'ERROR', 'log_message': 'Unauthorized access!!'}]
+    print(f" Processing data: {log_list}")
+    if lp.validate(log_list):
+        lp.ingest(log_list)
+    print(" Extracting 2 values...")
+    for i in range(2):
+        rank, data = lp.output()
+        print(f" Log entry {rank}: {data}")
