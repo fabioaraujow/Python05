@@ -98,6 +98,14 @@ class LogProcessor(DataProcessor):
                         f"{current['log_level']}: {current['log_message']}")
 
 
+class DataStream():
+    def __init__(self) -> None:
+        self.stream: list[DataProcessor] = []
+
+    def register_processor(self, proc: DataProcessor) -> None:
+        self.stream.append(proc)
+
+
 if __name__ == "__main__":
     print("=== Code Nexus - Data Stream ===")
     print("Initialize Data Stream...")
@@ -145,4 +153,3 @@ if __name__ == "__main__":
     for i in range(2):
         rank, data = lp.output()
         print(f" Log entry {rank}: {data}")
-
