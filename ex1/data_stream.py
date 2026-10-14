@@ -100,56 +100,81 @@ class LogProcessor(DataProcessor):
 
 class DataStream():
     def __init__(self) -> None:
-        self.stream: list[DataProcessor] = []
+        self.processors: list[DataProcessor] = []
 
     def register_processor(self, proc: DataProcessor) -> None:
-        self.stream.append(proc)
+        self.processors.append(proc)
+
+    def process_stream(self, stream: list[Any]) -> None:
+        if not self.processors:
+            print("No processor found, no data")
+        if not stream:
+            print("Empty List!")
+        else:
+            for current in stream:
+                for proc in self.processors:
+                    if proc.validate(current):
+                        proc.ingest(current)
+                        break
+                else:
+                    print(f"DataStream error - "
+                          f"Can't process element in stream: {current}")
+
+    def print_processors_stats(self) -> None:
+        if not self.processors:
+            print("== DataStream statistics ==")
+            print("No processor found, no data")
+        else:
+            print("== DataStream statistics ==")
+            for proc in self.processors:
+                processed = proc.rank + len(proc.storage)
+                name = type(proc).__name__
+                pr_name = ""
+                for char in name:
+                    if char.isupper() and pr_name:
+                        pr_name += " "
+                    pr_name += char
+                print(f"{pr_name}: total {processed} items processed, "
+                      f"remaining {len(proc.storage)} on processor")
 
 
 if __name__ == "__main__":
     print("=== Code Nexus - Data Stream ===")
+    print()
     print("Initialize Data Stream...")
+    ds = DataStream()
+    sort_list = [
+        'Hello World',
+        [3.14, -1, 2.71],
+        [{'log_level': 'WARNING',
+         'log_message': 'Telnet access! Use ssh insted'},
+         {'log_level': 'INFO', 'log_message': 'User wil is connected'}],
+        42, ['Hi', 'five']]
+    ds.print_processors_stats()
+    print()
+    print("Registering Numeric Processor")
+    print()
     np = NumericProcessor()
-    print(f" Trying to validate input '42': {np.validate(42)}")
-    print(f" Trying to validate input 'Hello': {np.validate('Hello')}")
-    print(" Test invalid ingestion of string 'foo' without prior validation:")
-    try:
-        np.ingest("foo")
-    except ValueError as err:
-        print(f" Got exception: {err}")
-    nb_list = [1, 2, 3, 4, 5]
-    print(f" Processing data: {nb_list}")
-    if np.validate(nb_list):
-        np.ingest(nb_list)
-    for i in range(3):
-        rank, data = np.output()
-        print(f" Numeric value {rank}: {data}")
-
+    ds.register_processor(np)
+    print(f"Send first batch of data on stream: {sort_list}")
+    ds.process_stream(sort_list)
+    ds.print_processors_stats()
     print()
-
-    print("Testing Text Processor...")
+    print("Registering other data processors")
+    print("Send the same batch again")
     tp = TextProcessor()
-    print(f" Trying to validate input '42': {tp.validate(42)}")
-    txt = ['Hello', 'Nexus', 'World']
-    print(f" Processing data: {txt}")
-    if tp.validate(txt):
-        tp.ingest(txt)
-    print(" Extracting 1 value")
-    for i in range(1):
-        rank, data = tp.output()
-        print(f" Text value {rank}: {data}")
-
-    print()
-
-    print("Testing Log Processor...")
     lp = LogProcessor()
-    print(f" Trying to validate input 'Hello': {lp.validate('Hello')}")
-    log_list = [{'log_level': 'NOTICE', 'log_message': 'Connection to server'},
-                {'log_level': 'ERROR', 'log_message': 'Unauthorized access!!'}]
-    print(f" Processing data: {log_list}")
-    if lp.validate(log_list):
-        lp.ingest(log_list)
-    print(" Extracting 2 values...")
-    for i in range(2):
-        rank, data = lp.output()
-        print(f" Log entry {rank}: {data}")
+    ds.register_processor(tp)
+    ds.register_processor(lp)
+    ds.process_stream(sort_list)
+    ds.print_processors_stats()
+    print()
+    print("Consume some elements from the data processors: "
+          "Numeric 3, Text 2, Log 1")
+    np.output()
+    np.output()
+    np.output()
+    tp.output()
+    tp.output()
+    lp.output()
+    ds.print_processors_stats()
