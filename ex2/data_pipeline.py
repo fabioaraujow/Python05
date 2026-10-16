@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Protocol
 
 
 class DataProcessor(ABC):
@@ -21,6 +21,11 @@ class DataProcessor(ABC):
         rank = self.rank
         self.rank += 1
         return (rank, data)
+
+
+class ExportPlugin(Protocol):
+    def process_output(self, data: list[tuple[int, str]]) -> None:
+        ...
 
 
 class NumericProcessor(DataProcessor):
@@ -136,3 +141,10 @@ class DataStream():
                     pr_name += char
                 print(f"{pr_name}: total {processed} items processed, "
                       f"remaining {len(proc.storage)} on processor")
+
+    def output_pipeline(self, nb: int, plugin: ExportPlugin) -> None:
+        for proc in self.processors:
+            storage: list[tuple[int, str]] = []
+            for i in range(min(nb, len(proc.storage))):
+                storage.append(proc.output())
+            plugin.process_output(storage)
