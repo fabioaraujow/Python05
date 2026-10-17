@@ -148,3 +148,11 @@ class DataStream():
             for i in range(min(nb, len(proc.storage))):
                 storage.append(proc.output())
             plugin.process_output(storage)
+
+
+class CSVExport():
+    ...
+
+
+class JsonExport():
+    ...
