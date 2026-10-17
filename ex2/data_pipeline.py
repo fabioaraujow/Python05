@@ -156,8 +156,9 @@ class CSVExport():
         prout = []
         for current in data:
             prout.append(current[1])
-        ",".join(prout)
+        print(",".join(prout))
 
 
 class JsonExport():
-    ...
+    def process_output(self, data: list[tuple[int, str]]) -> None:
+        ...
