@@ -165,4 +165,55 @@ class JsonExport():
         JSNOutput = []
         for current in data:
             JSNOutput.append(f'"item_{current[0]}": "{current[1]}"')
-        print("{" + ",".join(JSNOutput) + "}")
+        print("{" + ", ".join(JSNOutput) + "}")
+
+
+if __name__ == "__main__":
+    print("=== Code nexus - Data Pipeline ===")
+    print()
+    print("Initialize Data Stream...")
+    print()
+    ds = DataStream()
+    ds.print_processors_stats()
+    print()
+    print("Registering Processors")
+    print()
+    np = NumericProcessor()
+    tp = TextProcessor()
+    lp = LogProcessor()
+    ds.register_processor(np)
+    ds.register_processor(tp)
+    ds.register_processor(lp)
+    sort_list = [
+            'Hello World',
+            [3.14, -1, 2.71],
+            [{'log_level': 'WARNING',
+             'log_message': 'Telnet access! Use ssh instead'},
+             {'log_level': 'INFO', 'log_message': 'User wil is connected'}],
+            42, ['Hi', 'five']]
+    print(f"Send first batch of data on stream: {sort_list}")
+    print()
+    ds.process_stream(sort_list)
+    ds.print_processors_stats()
+    print()
+    print("Send 3 processed data from each processor to a CSV plugin:")
+    ds.output_pipeline(3, CSVExport())
+    print()
+    ds.print_processors_stats()
+    print()
+    sort_list = [
+        21, ['I love AI', 'LLMs are wonderful', 'Stay healthy'],
+        [{'log_level': 'ERROR', 'log_message': '500 server crash'},
+         {'log_level': 'NOTICE', 'log_message':
+          'Certificate expires in 10 days'}],
+        [32, 42, 64, 84, 128, 168], 'World hello'
+    ]
+    print(f"Send another batch of data: {sort_list}")
+    ds.process_stream(sort_list)
+    print()
+    ds.print_processors_stats()
+    print()
+    print("Send 5 processed data from each processor to a JSON plugin:")
+    ds.output_pipeline(5, JsonExport())
+    print()
+    ds.print_processors_stats()
