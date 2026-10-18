@@ -161,4 +161,8 @@ class CSVExport():
 
 class JsonExport():
     def process_output(self, data: list[tuple[int, str]]) -> None:
-        ...
+        print("JSON Output:")
+        JSNOutput = []
+        for current in data:
+            JSNOutput.append(f'"item_{current[0]}": "{current[1]}"')
+        print("{" + ",".join(JSNOutput) + "}")
